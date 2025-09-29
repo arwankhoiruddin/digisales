@@ -1,0 +1,110 @@
+/* DigiSales Admin Styles */
+
+.digisales-dashboard {
+    max-width: 1200px;
+    margin: 20px 0;
+}
+
+.digisales-welcome {
+    background: #fff;
+    border: 1px solid #ccd0d4;
+    box-shadow: 0 1px 1px rgba(0,0,0,.04);
+    padding: 20px;
+    margin-bottom: 20px;
+}
+
+.digisales-welcome h2 {
+    margin-top: 0;
+    color: #23282d;
+}
+
+.digisales-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+.digisales-stat-card {
+    background: #fff;
+    border: 1px solid #ccd0d4;
+    box-shadow: 0 1px 1px rgba(0,0,0,.04);
+    padding: 20px;
+    text-align: center;
+    border-radius: 3px;
+}
+
+.digisales-stat-card h3 {
+    margin: 0 0 10px 0;
+    color: #555;
+    font-size: 14px;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.digisales-stat-number {
+    display: block;
+    font-size: 32px;
+    font-weight: bold;
+    color: #0073aa;
+    line-height: 1;
+}
+
+.digisales-quick-actions {
+    background: #fff;
+    border: 1px solid #ccd0d4;
+    box-shadow: 0 1px 1px rgba(0,0,0,.04);
+    padding: 20px;
+}
+
+.digisales-quick-actions h3 {
+    margin-top: 0;
+    margin-bottom: 15px;
+    color: #23282d;
+}
+
+.digisales-quick-actions .button {
+    margin-right: 10px;
+    margin-bottom: 10px;
+}
+
+.digisales-products-placeholder,
+.digisales-orders-placeholder {
+    background: #fff;
+    border: 1px solid #ccd0d4;
+    box-shadow: 0 1px 1px rgba(0,0,0,.04);
+    padding: 40px 20px;
+    text-align: center;
+    margin-top: 20px;
+}
+
+.digisales-products-placeholder p,
+.digisales-orders-placeholder p {
+    font-size: 16px;
+    color: #666;
+    margin: 0;
+}
+
+/* Settings page styles */
+.form-table .digisales-settings-field {
+    padding-left: 0;
+}
+
+.digisales-settings-field input[type="text"] {
+    width: 100%;
+    max-width: 400px;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .digisales-stats-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .digisales-quick-actions .button {
+        display: block;
+        margin-right: 0;
+        margin-bottom: 10px;
+        text-align: center;
+    }
+}

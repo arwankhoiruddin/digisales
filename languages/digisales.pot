@@ -1,0 +1,66 @@
+# DigiSales Language Template
+# Copyright (C) 2024 DigiSales
+# This file is distributed under the same license as the DigiSales package.
+msgid ""
+msgstr ""
+"Project-Id-Version: DigiSales 1.0.0\n"
+"Report-Msgid-Bugs-To: support@yourdomain.com\n"
+"POT-Creation-Date: 2024-01-01 00:00+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+msgid "DigiSales"
+msgstr ""
+
+msgid "Dashboard"
+msgstr ""
+
+msgid "Products"
+msgstr ""
+
+msgid "Orders"
+msgstr ""
+
+msgid "Settings"
+msgstr ""
+
+msgid "Welcome to DigiSales"
+msgstr ""
+
+msgid "Transform your WordPress site into a complete digital product sales platform."
+msgstr ""
+
+msgid "Total Products"
+msgstr ""
+
+msgid "Total Orders"
+msgstr ""
+
+msgid "Total Revenue"
+msgstr ""
+
+msgid "Quick Actions"
+msgstr ""
+
+msgid "Add New Product"
+msgstr ""
+
+msgid "Configure Settings"
+msgstr ""
+
+msgid "General Settings"
+msgstr ""
+
+msgid "License Key"
+msgstr ""
+
+msgid "Enter your license key"
+msgstr ""
+
+msgid "Enter your DigiSales license key to activate the plugin."
+msgstr ""
