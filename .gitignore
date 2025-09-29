@@ -1,0 +1,31 @@
+# WordPress
+wp-config.php
+wp-content/uploads/
+wp-content/cache/
+
+# Development files
+node_modules/
+.sass-cache/
+*.log
+.DS_Store
+Thumbs.db
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Temporary files
+*~
+.tmp/
+.temp/
+
+# Build files
+/dist/
+/build/
+
+# Environment files
+.env
+.env.local
+.env.production
