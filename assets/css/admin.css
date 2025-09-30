@@ -1,5 +1,49 @@
 /* DigiSales Admin Styles */
 
+/* Product Type Selector */
+.digisales-product-type-selector {
+    margin: 0;
+    padding: 0;
+}
+
+.digisales-product-type-option {
+    display: block;
+    padding: 12px 15px;
+    margin: 0 -12px 8px -12px;
+    border: 2px solid #ddd;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    background: #fff;
+}
+
+.digisales-product-type-option:hover {
+    border-color: #0073aa;
+    background: #f0f6fc;
+}
+
+.digisales-product-type-option input[type="radio"] {
+    margin: 0 10px 0 0;
+    vertical-align: middle;
+}
+
+.digisales-product-type-option input[type="radio"]:checked + .digisales-product-type-label {
+    font-weight: 600;
+    color: #0073aa;
+}
+
+.digisales-product-type-option:has(input[type="radio"]:checked) {
+    border-color: #0073aa;
+    background: #f0f6fc;
+}
+
+.digisales-product-type-label {
+    font-size: 14px;
+    color: #23282d;
+    display: inline-block;
+    vertical-align: middle;
+}
+
 .digisales-dashboard {
     max-width: 1200px;
     margin: 20px 0;
@@ -95,6 +139,71 @@
     max-width: 400px;
 }
 
+/* Product meta box styles */
+.video-url-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.video-url-item input[type="url"] {
+    flex: 1;
+    margin-right: 10px;
+}
+
+.file-attachment-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 10px;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 3px;
+    background: #f9f9f9;
+}
+
+.file-attachment-item strong {
+    flex: 1;
+    margin-right: 10px;
+}
+
+.file-attachment-item a {
+    margin-right: 10px;
+}
+
+/* Admin list table customizations */
+.wp-list-table .column-thumbnail {
+    width: 80px;
+}
+
+.wp-list-table .column-price {
+    width: 100px;
+}
+
+.wp-list-table .column-product_type {
+    width: 120px;
+}
+
+.wp-list-table .column-thumbnail img {
+    border-radius: 3px;
+    border: 1px solid #ddd;
+}
+
+/* Product type filter */
+select[name="product_type_filter"] {
+    margin-right: 10px;
+}
+
+/* Meta box form styling */
+.digisales-meta-box .form-table th {
+    width: 150px;
+    padding-left: 0;
+}
+
+.digisales-meta-box .form-table td {
+    padding-left: 0;
+}
+
 /* Responsive design */
 @media (max-width: 768px) {
     .digisales-stats-grid {
@@ -106,5 +215,26 @@
         margin-right: 0;
         margin-bottom: 10px;
         text-align: center;
+    }
+    
+    .video-url-item {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .video-url-item input[type="url"] {
+        margin-right: 0;
+        margin-bottom: 10px;
+    }
+    
+    .file-attachment-item {
+        flex-direction: column;
+        align-items: stretch;
+        text-align: center;
+    }
+    
+    .file-attachment-item strong,
+    .file-attachment-item a {
+        margin-bottom: 5px;
     }
 }
