@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DigiSales Coupon Management - Visual Guide</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: #f0f0f1;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #1d2327;
+            border-bottom: 3px solid #2271b1;
+            padding-bottom: 10px;
+        }
+        h2 {
+            color: #1d2327;
+            margin-top: 30px;
+        }
+        .menu-structure {
+            background: #23282d;
+            color: #eee;
+            padding: 20px;
+            border-radius: 4px;
+            font-family: monospace;
+            margin: 20px 0;
+        }
+        .menu-structure .menu-item {
+            padding: 8px 0;
+            cursor: pointer;
+        }
+        .menu-structure .menu-item:hover {
+            background: rgba(255,255,255,0.1);
+        }
+        .menu-structure .submenu {
+            margin-left: 20px;
+            color: #8a98a5;
+        }
+        .menu-structure .highlight {
+            background: #2271b1;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 3px;
+            font-weight: bold;
+        }
+        .admin-page {
+            border: 2px solid #ccd0d4;
+            padding: 20px;
+            margin: 20px 0;
+            background: #f9f9f9;
+            border-radius: 4px;
+        }
+        .form-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: white;
+        }
+        .form-table th {
+            text-align: left;
+            padding: 15px;
+            background: #f6f7f7;
+            border-bottom: 1px solid #ddd;
+            width: 200px;
+        }
+        .form-table td {
+            padding: 15px;
+            border-bottom: 1px solid #ddd;
+        }
+        .form-table input[type="text"],
+        .form-table input[type="number"],
+        .form-table select {
+            padding: 8px;
+            border: 1px solid #8c8f94;
+            border-radius: 4px;
+        }
+        .form-table input[type="text"].regular-text {
+            width: 300px;
+        }
+        .button {
+            background: #2271b1;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .button:hover {
+            background: #135e96;
+        }
+        .button-small {
+            background: #f0f0f1;
+            color: #2c3338;
+            padding: 5px 10px;
+        }
+        .coupon-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: white;
+            border: 1px solid #c3c4c7;
+        }
+        .coupon-table th {
+            background: #f6f7f7;
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #c3c4c7;
+            font-weight: 600;
+        }
+        .coupon-table td {
+            padding: 12px;
+            border-bottom: 1px solid #ddd;
+        }
+        .coupon-table tbody tr:hover {
+            background: #f6f7f7;
+        }
+        .step {
+            background: #e7f3f8;
+            border-left: 4px solid #2271b1;
+            padding: 15px;
+            margin: 10px 0;
+        }
+        .step-number {
+            display: inline-block;
+            background: #2271b1;
+            color: white;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 30px;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+        .notice {
+            background: #d7f0d7;
+            border-left: 4px solid #00a32a;
+            padding: 15px;
+            margin: 20px 0;
+        }
+        .description {
+            color: #646970;
+            font-size: 13px;
+            font-style: italic;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎫 DigiSales Coupon Management - Visual Guide</h1>
+        
+        <p style="font-size: 18px; color: #646970;">
+            This guide shows you exactly where to find and how to use the coupon management interface in DigiSales.
+        </p>
+
+        <h2>📍 Step 1: Navigate to Coupons Page</h2>
+        
+        <div class="step">
+            <span class="step-number">1</span>
+            <strong>Log in to WordPress Admin</strong> and look for DigiSales in the left sidebar.
+        </div>
+
+        <div class="menu-structure">
+            <div class="menu-item">📊 Dashboard</div>
+            <div class="menu-item">📝 Posts</div>
+            <div class="menu-item">🖼️ Media</div>
+            <div class="menu-item">📄 Pages</div>
+            <div class="menu-item">💬 Comments</div>
+            <div class="menu-item"><span class="highlight">🛒 DigiSales</span> ← Click here to expand</div>
+            <div class="submenu">
+                <div class="menu-item">├─ Dashboard</div>
+                <div class="menu-item">├─ Products</div>
+                <div class="menu-item">├─ Add New Product</div>
+                <div class="menu-item">├─ Orders</div>
+                <div class="menu-item"><span class="highlight">├─ Coupons</span> ← Then click here</div>
+                <div class="menu-item">└─ Settings</div>
+            </div>
+            <div class="menu-item">👥 Users</div>
+            <div class="menu-item">🔧 Tools</div>
+            <div class="menu-item">⚙️ Settings</div>
+        </div>
+
+        <h2>📝 Step 2: Add a New Coupon</h2>
+
+        <div class="admin-page">
+            <h2 style="margin-top: 0;">Add New Coupon</h2>
+            
+            <table class="form-table">
+                <tr>
+                    <th><label for="coupon_code">Coupon Code *</label></th>
+                    <td>
+                        <input type="text" id="coupon_code" name="coupon_code" class="regular-text" placeholder="e.g., SAVE20" required>
+                        <div class="description">Enter a unique code that customers will use</div>
+                    </td>
+                </tr>
+                <tr>
+                    <th><label for="discount_type">Discount Type *</label></th>
+                    <td>
+                        <select id="discount_type" name="discount_type">
+                            <option value="percentage">Percentage</option>
+                            <option value="fixed">Fixed Amount</option>
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <th><label for="discount_value">Discount Value *</label></th>
+                    <td>
+                        <input type="number" id="discount_value" name="discount_value" step="0.01" min="0" placeholder="20.00" style="width: 150px;" required>
+                        <div class="description">For percentage: enter 20 for 20%. For fixed: enter dollar amount.</div>
+                    </td>
+                </tr>
+                <tr>
+                    <th><label for="start_date">Start Date</label></th>
+                    <td>
+                        <input type="datetime-local" id="start_date" name="start_date" style="width: 250px;">
+                        <div class="description">Optional: When the coupon becomes active</div>
+                    </td>
+                </tr>
+                <tr>
+                    <th><label for="end_date">End Date</label></th>
+                    <td>
+                        <input type="datetime-local" id="end_date" name="end_date" style="width: 250px;">
+                        <div class="description">Optional: When the coupon expires</div>
+                    </td>
+                </tr>
+                <tr>
+                    <th><label for="max_usage">Maximum Usage</label></th>
+                    <td>
+                        <input type="number" id="max_usage" name="max_usage" min="0" placeholder="Unlimited" style="width: 150px;">
+                        <div class="description">Optional: Limit how many times this coupon can be used</div>
+                    </td>
+                </tr>
+                <tr>
+                    <th><label>Applicable Products</label></th>
+                    <td>
+                        <select name="applicable_products[]" multiple style="width: 400px; height: 150px;">
+                            <option value="">All Products</option>
+                            <option value="1">Sample E-book Product</option>
+                            <option value="2">Sample Video Course</option>
+                            <option value="3">Sample Design Template</option>
+                        </select>
+                        <div class="description">Hold Ctrl/Cmd to select multiple. Leave empty for all products.</div>
+                    </td>
+                </tr>
+            </table>
+            
+            <p>
+                <button type="submit" class="button">Add Coupon</button>
+            </p>
+        </div>
+
+        <div class="notice">
+            ✅ <strong>Success!</strong> After clicking "Add Coupon", your coupon will be saved and appear in the table below.
+        </div>
+
+        <h2>📊 Step 3: View Existing Coupons</h2>
+
+        <div class="admin-page">
+            <h2 style="margin-top: 0;">Existing Coupons</h2>
+            
+            <table class="coupon-table">
+                <thead>
+                    <tr>
+                        <th>Code</th>
+                        <th>Type</th>
+                        <th>Value</th>
+                        <th>Valid Period</th>
+                        <th>Usage</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>SAVE20</strong></td>
+                        <td>Percentage</td>
+                        <td>20%</td>
+                        <td>2024-01-01 to 2024-12-31</td>
+                        <td>45 / 100</td>
+                        <td><button class="button button-small">Delete</button></td>
+                    </tr>
+                    <tr>
+                        <td><strong>SUMMER</strong></td>
+                        <td>Fixed</td>
+                        <td>$15.00</td>
+                        <td>Anytime</td>
+                        <td>12 / Unlimited</td>
+                        <td><button class="button button-small">Delete</button></td>
+                    </tr>
+                    <tr>
+                        <td><strong>FLASH50</strong></td>
+                        <td>Percentage</td>
+                        <td>50%</td>
+                        <td>From 2024-06-01</td>
+                        <td>0 / 50</td>
+                        <td><button class="button button-small">Delete</button></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <h2>💡 Quick Tips</h2>
+        
+        <div style="background: #fff3cd; border-left: 4px solid #ffc107; padding: 15px; margin: 20px 0;">
+            <strong>Example Coupon Scenarios:</strong>
+            <ul>
+                <li><strong>Black Friday Sale:</strong> Code: BLACKFRIDAY, Type: Percentage, Value: 30, Dates: Nov 24-27</li>
+                <li><strong>Welcome Discount:</strong> Code: WELCOME10, Type: Percentage, Value: 10, No dates (always active)</li>
+                <li><strong>Limited Time Offer:</strong> Code: FLASH50, Type: Fixed, Value: 50, Max Usage: 100</li>
+                <li><strong>Product-Specific:</strong> Code: EBOOK20, Type: Percentage, Value: 20, Only for selected e-book products</li>
+            </ul>
+        </div>
+
+        <h2>🔍 Troubleshooting</h2>
+        
+        <div class="step">
+            <strong>Can't see the Coupons menu?</strong>
+            <ul>
+                <li>Make sure DigiSales plugin is activated (Plugins → Installed Plugins)</li>
+                <li>Verify you're logged in as an Administrator</li>
+                <li>Clear your browser cache and refresh (Ctrl+F5 or Cmd+Shift+R)</li>
+                <li>Check WordPress version is 5.8 or higher</li>
+            </ul>
+        </div>
+
+        <div class="step">
+            <strong>Coupon not working on frontend?</strong>
+            <ul>
+                <li>Verify coupon code spelling (case-sensitive)</li>
+                <li>Check if current date is within the valid period</li>
+                <li>Ensure usage limit hasn't been reached</li>
+                <li>Confirm product is in the applicable products list</li>
+            </ul>
+        </div>
+
+        <h2>📚 Additional Resources</h2>
+        
+        <ul>
+            <li><strong>FLEXIBLE_PRICING.md</strong> - Complete feature documentation</li>
+            <li><strong>COUPON_MANAGEMENT_GUIDE.md</strong> - Detailed text guide</li>
+            <li><strong>TESTING_CHECKLIST.md</strong> - Testing guidelines</li>
+        </ul>
+
+        <div style="margin-top: 40px; padding: 20px; background: #f0f6fc; border-radius: 4px; text-align: center;">
+            <p style="margin: 0; color: #646970;">
+                <strong>Need more help?</strong> Check the documentation files in the plugin directory or contact support.
+            </p>
+        </div>
+    </div>
+</body>
+</html>
