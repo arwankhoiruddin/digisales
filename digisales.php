@@ -216,6 +216,16 @@ class DigiSales {
             array($this, 'orders_page')
         );
         
+        // Coupons submenu
+        add_submenu_page(
+            'digisales',
+            __('Coupons', 'digisales'),
+            __('Coupons', 'digisales'),
+            'manage_options',
+            'digisales-coupons',
+            array($this, 'coupons_page')
+        );
+        
         // Settings submenu
         add_submenu_page(
             'digisales',
@@ -310,6 +320,177 @@ class DigiSales {
             <div class="digisales-orders-placeholder">
                 <p><?php _e('Order management interface will be implemented here.', 'digisales'); ?></p>
             </div>
+        </div>
+        <?php
+    }
+    
+    /**
+     * Coupons page
+     */
+    public function coupons_page() {
+        global $wpdb;
+        $table_name = $wpdb->prefix . 'digisales_coupons';
+        
+        // Handle form submissions
+        if (isset($_POST['digisales_add_coupon']) && wp_verify_nonce($_POST['digisales_coupon_nonce'], 'digisales_add_coupon')) {
+            $code = sanitize_text_field($_POST['coupon_code']);
+            $discount_type = sanitize_text_field($_POST['discount_type']);
+            $discount_value = floatval($_POST['discount_value']);
+            $start_date = !empty($_POST['start_date']) ? sanitize_text_field($_POST['start_date']) : null;
+            $end_date = !empty($_POST['end_date']) ? sanitize_text_field($_POST['end_date']) : null;
+            $max_usage = !empty($_POST['max_usage']) ? intval($_POST['max_usage']) : null;
+            $applicable_products = isset($_POST['applicable_products']) ? implode(',', array_map('intval', $_POST['applicable_products'])) : '';
+            
+            $wpdb->insert(
+                $table_name,
+                array(
+                    'code' => $code,
+                    'discount_type' => $discount_type,
+                    'discount_value' => $discount_value,
+                    'start_date' => $start_date,
+                    'end_date' => $end_date,
+                    'max_usage' => $max_usage,
+                    'applicable_products' => $applicable_products,
+                ),
+                array('%s', '%s', '%f', '%s', '%s', '%d', '%s')
+            );
+            
+            echo '<div class="notice notice-success"><p>' . __('Coupon added successfully!', 'digisales') . '</p></div>';
+        }
+        
+        // Handle coupon deletion
+        if (isset($_GET['action']) && $_GET['action'] === 'delete' && isset($_GET['coupon_id'])) {
+            $coupon_id = intval($_GET['coupon_id']);
+            $wpdb->delete($table_name, array('id' => $coupon_id), array('%d'));
+            echo '<div class="notice notice-success"><p>' . __('Coupon deleted successfully!', 'digisales') . '</p></div>';
+        }
+        
+        $coupons = $wpdb->get_results("SELECT * FROM $table_name ORDER BY created_at DESC");
+        $products = get_posts(array('post_type' => 'digital_product', 'numberposts' => -1));
+        
+        ?>
+        <div class="wrap">
+            <h1><?php echo esc_html(get_admin_page_title()); ?></h1>
+            
+            <div style="background: #fff; padding: 20px; margin: 20px 0; border: 1px solid #ccd0d4;">
+                <h2><?php _e('Add New Coupon', 'digisales'); ?></h2>
+                <form method="post" action="">
+                    <?php wp_nonce_field('digisales_add_coupon', 'digisales_coupon_nonce'); ?>
+                    <table class="form-table">
+                        <tr>
+                            <th scope="row"><label for="coupon_code"><?php _e('Coupon Code', 'digisales'); ?></label></th>
+                            <td><input type="text" id="coupon_code" name="coupon_code" required class="regular-text" /></td>
+                        </tr>
+                        <tr>
+                            <th scope="row"><label for="discount_type"><?php _e('Discount Type', 'digisales'); ?></label></th>
+                            <td>
+                                <select id="discount_type" name="discount_type">
+                                    <option value="percentage"><?php _e('Percentage', 'digisales'); ?></option>
+                                    <option value="fixed"><?php _e('Fixed Amount', 'digisales'); ?></option>
+                                </select>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th scope="row"><label for="discount_value"><?php _e('Discount Value', 'digisales'); ?></label></th>
+                            <td><input type="number" id="discount_value" name="discount_value" step="0.01" min="0" required style="width: 150px;" /></td>
+                        </tr>
+                        <tr>
+                            <th scope="row"><label for="start_date"><?php _e('Start Date', 'digisales'); ?></label></th>
+                            <td><input type="datetime-local" id="start_date" name="start_date" style="width: 250px;" /></td>
+                        </tr>
+                        <tr>
+                            <th scope="row"><label for="end_date"><?php _e('End Date', 'digisales'); ?></label></th>
+                            <td><input type="datetime-local" id="end_date" name="end_date" style="width: 250px;" /></td>
+                        </tr>
+                        <tr>
+                            <th scope="row"><label for="max_usage"><?php _e('Maximum Usage', 'digisales'); ?></label></th>
+                            <td><input type="number" id="max_usage" name="max_usage" min="0" placeholder="<?php _e('Unlimited', 'digisales'); ?>" style="width: 150px;" /></td>
+                        </tr>
+                        <tr>
+                            <th scope="row"><label><?php _e('Applicable Products', 'digisales'); ?></label></th>
+                            <td>
+                                <select name="applicable_products[]" multiple style="width: 400px; height: 150px;">
+                                    <option value=""><?php _e('All Products', 'digisales'); ?></option>
+                                    <?php foreach ($products as $product) : ?>
+                                        <option value="<?php echo $product->ID; ?>"><?php echo esc_html($product->post_title); ?></option>
+                                    <?php endforeach; ?>
+                                </select>
+                                <p class="description"><?php _e('Hold Ctrl/Cmd to select multiple products. Leave empty for all products.', 'digisales'); ?></p>
+                            </td>
+                        </tr>
+                    </table>
+                    <p class="submit">
+                        <input type="submit" name="digisales_add_coupon" class="button button-primary" value="<?php _e('Add Coupon', 'digisales'); ?>" />
+                    </p>
+                </form>
+            </div>
+            
+            <h2><?php _e('Existing Coupons', 'digisales'); ?></h2>
+            <table class="wp-list-table widefat fixed striped">
+                <thead>
+                    <tr>
+                        <th><?php _e('Code', 'digisales'); ?></th>
+                        <th><?php _e('Type', 'digisales'); ?></th>
+                        <th><?php _e('Value', 'digisales'); ?></th>
+                        <th><?php _e('Valid Period', 'digisales'); ?></th>
+                        <th><?php _e('Usage', 'digisales'); ?></th>
+                        <th><?php _e('Actions', 'digisales'); ?></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php if (!empty($coupons)) : ?>
+                        <?php foreach ($coupons as $coupon) : ?>
+                            <tr>
+                                <td><strong><?php echo esc_html($coupon->code); ?></strong></td>
+                                <td><?php echo esc_html(ucfirst($coupon->discount_type)); ?></td>
+                                <td>
+                                    <?php 
+                                    if ($coupon->discount_type === 'percentage') {
+                                        echo number_format($coupon->discount_value, 0) . '%';
+                                    } else {
+                                        echo '$' . number_format($coupon->discount_value, 2);
+                                    }
+                                    ?>
+                                </td>
+                                <td>
+                                    <?php 
+                                    if ($coupon->start_date && $coupon->end_date) {
+                                        echo date('Y-m-d', strtotime($coupon->start_date)) . ' to ' . date('Y-m-d', strtotime($coupon->end_date));
+                                    } elseif ($coupon->start_date) {
+                                        echo 'From ' . date('Y-m-d', strtotime($coupon->start_date));
+                                    } elseif ($coupon->end_date) {
+                                        echo 'Until ' . date('Y-m-d', strtotime($coupon->end_date));
+                                    } else {
+                                        echo __('Anytime', 'digisales');
+                                    }
+                                    ?>
+                                </td>
+                                <td>
+                                    <?php 
+                                    echo $coupon->usage_count;
+                                    if ($coupon->max_usage) {
+                                        echo ' / ' . $coupon->max_usage;
+                                    } else {
+                                        echo ' / ' . __('Unlimited', 'digisales');
+                                    }
+                                    ?>
+                                </td>
+                                <td>
+                                    <a href="?page=digisales-coupons&action=delete&coupon_id=<?php echo $coupon->id; ?>" 
+                                       class="button button-small"
+                                       onclick="return confirm('<?php _e('Are you sure you want to delete this coupon?', 'digisales'); ?>');">
+                                        <?php _e('Delete', 'digisales'); ?>
+                                    </a>
+                                </td>
+                            </tr>
+                        <?php endforeach; ?>
+                    <?php else : ?>
+                        <tr>
+                            <td colspan="6"><?php _e('No coupons found. Add your first coupon above.', 'digisales'); ?></td>
+                        </tr>
+                    <?php endif; ?>
+                </tbody>
+            </table>
         </div>
         <?php
     }
@@ -486,6 +667,25 @@ class DigiSales {
         
         require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
         dbDelta($sql);
+        
+        // Coupons table
+        $coupons_table = $wpdb->prefix . 'digisales_coupons';
+        $sql_coupons = "CREATE TABLE $coupons_table (
+            id mediumint(9) NOT NULL AUTO_INCREMENT,
+            code varchar(100) NOT NULL,
+            discount_type varchar(20) NOT NULL DEFAULT 'percentage',
+            discount_value decimal(10,2) NOT NULL,
+            start_date datetime DEFAULT NULL,
+            end_date datetime DEFAULT NULL,
+            max_usage int DEFAULT NULL,
+            usage_count int DEFAULT 0,
+            applicable_products text DEFAULT NULL,
+            created_at datetime DEFAULT CURRENT_TIMESTAMP,
+            PRIMARY KEY (id),
+            UNIQUE KEY code (code)
+        ) $charset_collate;";
+        
+        dbDelta($sql_coupons);
     }
     
     /**
@@ -587,6 +787,13 @@ class DigiSales {
         $video_urls = get_post_meta($post->ID, '_digisales_video_urls', true);
         $video_urls = is_array($video_urls) ? $video_urls : array();
         
+        // Scheduled discount fields
+        $discount_enabled = get_post_meta($post->ID, '_digisales_discount_enabled', true);
+        $discount_type = get_post_meta($post->ID, '_digisales_discount_type', true);
+        $discount_value = get_post_meta($post->ID, '_digisales_discount_value', true);
+        $discount_start = get_post_meta($post->ID, '_digisales_discount_start', true);
+        $discount_end = get_post_meta($post->ID, '_digisales_discount_end', true);
+        
         ?>
         <div class="digisales-meta-box">
         <table class="form-table">
@@ -604,6 +811,59 @@ class DigiSales {
                            placeholder="0.00" 
                            style="width: 150px;" />
                     <p class="description"><?php _e('Enter the price for this digital product.', 'digisales'); ?></p>
+                </td>
+            </tr>
+            
+            <tr>
+                <th scope="row">
+                    <label><?php _e('Scheduled Discount', 'digisales'); ?></label>
+                </th>
+                <td>
+                    <label>
+                        <input type="checkbox" 
+                               id="digisales_discount_enabled" 
+                               name="digisales_discount_enabled" 
+                               value="1" 
+                               <?php checked($discount_enabled, '1'); ?> />
+                        <?php _e('Enable scheduled discount', 'digisales'); ?>
+                    </label>
+                    <div id="discount_fields" style="margin-top: 15px; <?php echo $discount_enabled ? '' : 'display:none;'; ?>">
+                        <p>
+                            <label for="digisales_discount_type"><?php _e('Discount Type:', 'digisales'); ?></label>
+                            <select id="digisales_discount_type" name="digisales_discount_type">
+                                <option value="percentage" <?php selected($discount_type, 'percentage'); ?>><?php _e('Percentage', 'digisales'); ?></option>
+                                <option value="fixed" <?php selected($discount_type, 'fixed'); ?>><?php _e('Fixed Amount', 'digisales'); ?></option>
+                            </select>
+                        </p>
+                        <p>
+                            <label for="digisales_discount_value"><?php _e('Discount Value:', 'digisales'); ?></label>
+                            <input type="number" 
+                                   id="digisales_discount_value" 
+                                   name="digisales_discount_value" 
+                                   value="<?php echo esc_attr($discount_value); ?>" 
+                                   step="0.01" 
+                                   min="0" 
+                                   placeholder="0.00" 
+                                   style="width: 150px;" />
+                        </p>
+                        <p>
+                            <label for="digisales_discount_start"><?php _e('Start Date:', 'digisales'); ?></label>
+                            <input type="datetime-local" 
+                                   id="digisales_discount_start" 
+                                   name="digisales_discount_start" 
+                                   value="<?php echo esc_attr($discount_start); ?>" 
+                                   style="width: 250px;" />
+                        </p>
+                        <p>
+                            <label for="digisales_discount_end"><?php _e('End Date:', 'digisales'); ?></label>
+                            <input type="datetime-local" 
+                                   id="digisales_discount_end" 
+                                   name="digisales_discount_end" 
+                                   value="<?php echo esc_attr($discount_end); ?>" 
+                                   style="width: 250px;" />
+                        </p>
+                    </div>
+                    <p class="description"><?php _e('Set up a scheduled discount that will automatically apply during the specified date range.', 'digisales'); ?></p>
                 </td>
             </tr>
             
@@ -658,6 +918,15 @@ class DigiSales {
         
         <script type="text/javascript">
         jQuery(document).ready(function($) {
+            // Toggle discount fields
+            $('#digisales_discount_enabled').on('change', function() {
+                if ($(this).is(':checked')) {
+                    $('#discount_fields').slideDown();
+                } else {
+                    $('#discount_fields').slideUp();
+                }
+            });
+            
             // Show/hide fields based on product type
             function toggleProductFields() {
                 var selectedType = $('input[name="digisales_product_type"]:checked').val();
@@ -807,6 +1076,39 @@ class DigiSales {
             $price = sanitize_text_field($_POST['digisales_price']);
             $price = is_numeric($price) ? floatval($price) : 0;
             update_post_meta($post_id, '_digisales_price', $price);
+        }
+        
+        // Save scheduled discount fields
+        $discount_enabled = isset($_POST['digisales_discount_enabled']) ? '1' : '0';
+        update_post_meta($post_id, '_digisales_discount_enabled', $discount_enabled);
+        
+        if ($discount_enabled === '1') {
+            if (isset($_POST['digisales_discount_type'])) {
+                $discount_type = sanitize_text_field($_POST['digisales_discount_type']);
+                update_post_meta($post_id, '_digisales_discount_type', $discount_type);
+            }
+            
+            if (isset($_POST['digisales_discount_value'])) {
+                $discount_value = sanitize_text_field($_POST['digisales_discount_value']);
+                $discount_value = is_numeric($discount_value) ? floatval($discount_value) : 0;
+                update_post_meta($post_id, '_digisales_discount_value', $discount_value);
+            }
+            
+            if (isset($_POST['digisales_discount_start'])) {
+                $discount_start = sanitize_text_field($_POST['digisales_discount_start']);
+                update_post_meta($post_id, '_digisales_discount_start', $discount_start);
+            }
+            
+            if (isset($_POST['digisales_discount_end'])) {
+                $discount_end = sanitize_text_field($_POST['digisales_discount_end']);
+                update_post_meta($post_id, '_digisales_discount_end', $discount_end);
+            }
+        } else {
+            // Clear discount fields if disabled
+            delete_post_meta($post_id, '_digisales_discount_type');
+            delete_post_meta($post_id, '_digisales_discount_value');
+            delete_post_meta($post_id, '_digisales_discount_start');
+            delete_post_meta($post_id, '_digisales_discount_end');
         }
         
         // Save YouTube URL (for video products)
@@ -1195,9 +1497,14 @@ class DigiSales {
                 break;
                 
             case 'price':
-                $price = get_post_meta($post_id, '_digisales_price', true);
-                if ($price) {
-                    echo '$' . number_format((float)$price, 2);
+                $pricing = $this->calculate_product_price($post_id);
+                if ($pricing['original_price'] > 0) {
+                    if ($pricing['discount_amount'] > 0) {
+                        echo '<span style="text-decoration: line-through; color: #999;">$' . number_format($pricing['original_price'], 2) . '</span><br>';
+                        echo '<strong style="color: #0073aa;">$' . number_format($pricing['final_price'], 2) . '</strong>';
+                    } else {
+                        echo '$' . number_format($pricing['final_price'], 2);
+                    }
                 } else {
                     echo '—';
                 }
@@ -1290,6 +1597,158 @@ class DigiSales {
     }
     
     /**
+     * Calculate final price with discounts and coupons
+     * 
+     * @param int $product_id The product ID
+     * @param string $coupon_code Optional coupon code
+     * @return array Array with 'original_price', 'final_price', 'discount_amount', 'discount_source'
+     */
+    public function calculate_product_price($product_id, $coupon_code = '') {
+        $base_price = floatval(get_post_meta($product_id, '_digisales_price', true));
+        $original_price = $base_price;
+        $final_price = $base_price;
+        $discount_amount = 0;
+        $discount_source = '';
+        
+        // Check for scheduled discount first
+        $discount_enabled = get_post_meta($product_id, '_digisales_discount_enabled', true);
+        if ($discount_enabled === '1') {
+            $discount_start = get_post_meta($product_id, '_digisales_discount_start', true);
+            $discount_end = get_post_meta($product_id, '_digisales_discount_end', true);
+            $current_time = current_time('mysql');
+            
+            $is_active = true;
+            if ($discount_start && $current_time < $discount_start) {
+                $is_active = false;
+            }
+            if ($discount_end && $current_time > $discount_end) {
+                $is_active = false;
+            }
+            
+            if ($is_active) {
+                $discount_type = get_post_meta($product_id, '_digisales_discount_type', true);
+                $discount_value = floatval(get_post_meta($product_id, '_digisales_discount_value', true));
+                
+                if ($discount_type === 'percentage') {
+                    $discount_amount = ($base_price * $discount_value) / 100;
+                } else {
+                    $discount_amount = $discount_value;
+                }
+                
+                $final_price = max(0, $base_price - $discount_amount);
+                $discount_source = 'scheduled';
+            }
+        }
+        
+        // Check for coupon code (takes precedence over scheduled discount)
+        if (!empty($coupon_code)) {
+            global $wpdb;
+            $table_name = $wpdb->prefix . 'digisales_coupons';
+            $coupon = $wpdb->get_row($wpdb->prepare(
+                "SELECT * FROM $table_name WHERE code = %s",
+                $coupon_code
+            ));
+            
+            if ($coupon) {
+                $is_valid = true;
+                $current_time = current_time('mysql');
+                
+                // Check date validity
+                if ($coupon->start_date && $current_time < $coupon->start_date) {
+                    $is_valid = false;
+                }
+                if ($coupon->end_date && $current_time > $coupon->end_date) {
+                    $is_valid = false;
+                }
+                
+                // Check usage limit
+                if ($coupon->max_usage && $coupon->usage_count >= $coupon->max_usage) {
+                    $is_valid = false;
+                }
+                
+                // Check applicable products
+                if (!empty($coupon->applicable_products)) {
+                    $applicable_products = explode(',', $coupon->applicable_products);
+                    if (!in_array($product_id, $applicable_products)) {
+                        $is_valid = false;
+                    }
+                }
+                
+                if ($is_valid) {
+                    if ($coupon->discount_type === 'percentage') {
+                        $discount_amount = ($base_price * floatval($coupon->discount_value)) / 100;
+                    } else {
+                        $discount_amount = floatval($coupon->discount_value);
+                    }
+                    
+                    $final_price = max(0, $base_price - $discount_amount);
+                    $discount_source = 'coupon';
+                }
+            }
+        }
+        
+        return array(
+            'original_price' => $original_price,
+            'final_price' => $final_price,
+            'discount_amount' => $discount_amount,
+            'discount_source' => $discount_source
+        );
+    }
+    
+    /**
+     * Validate and apply coupon code
+     * 
+     * @param string $coupon_code The coupon code
+     * @param int $product_id The product ID
+     * @return array Result with 'valid', 'message', and 'discount_info'
+     */
+    public function validate_coupon($coupon_code, $product_id) {
+        global $wpdb;
+        $table_name = $wpdb->prefix . 'digisales_coupons';
+        
+        $coupon = $wpdb->get_row($wpdb->prepare(
+            "SELECT * FROM $table_name WHERE code = %s",
+            $coupon_code
+        ));
+        
+        if (!$coupon) {
+            return array('valid' => false, 'message' => __('Invalid coupon code.', 'digisales'));
+        }
+        
+        $current_time = current_time('mysql');
+        
+        // Check date validity
+        if ($coupon->start_date && $current_time < $coupon->start_date) {
+            return array('valid' => false, 'message' => __('This coupon is not yet active.', 'digisales'));
+        }
+        if ($coupon->end_date && $current_time > $coupon->end_date) {
+            return array('valid' => false, 'message' => __('This coupon has expired.', 'digisales'));
+        }
+        
+        // Check usage limit
+        if ($coupon->max_usage && $coupon->usage_count >= $coupon->max_usage) {
+            return array('valid' => false, 'message' => __('This coupon has reached its usage limit.', 'digisales'));
+        }
+        
+        // Check applicable products
+        if (!empty($coupon->applicable_products)) {
+            $applicable_products = explode(',', $coupon->applicable_products);
+            if (!in_array($product_id, $applicable_products)) {
+                return array('valid' => false, 'message' => __('This coupon is not applicable to this product.', 'digisales'));
+            }
+        }
+        
+        return array(
+            'valid' => true, 
+            'message' => __('Coupon applied successfully!', 'digisales'),
+            'discount_info' => array(
+                'type' => $coupon->discount_type,
+                'value' => $coupon->discount_value
+            )
+        );
+    }
+    
+    /**
      * Filter the content for digital product single pages
      */
     public function product_content_filter($content) {
@@ -1301,18 +1760,38 @@ class DigiSales {
         
         $product_types = wp_get_post_terms($post->ID, 'product_type', array('fields' => 'slugs'));
         $product_type = !empty($product_types) ? $product_types[0] : '';
-        $price = get_post_meta($post->ID, '_digisales_price', true);
+        
+        // Calculate pricing with discounts
+        $pricing = $this->calculate_product_price($post->ID);
         
         // Build product details HTML
         $product_html = '<div class="digisales-product-details">';
         
-        // Price
-        if ($price) {
+        // Price with discount display
+        if ($pricing['original_price'] > 0) {
             $product_html .= '<div class="digisales-product-price">';
             $product_html .= '<span class="price-label">' . __('Price:', 'digisales') . '</span> ';
-            $product_html .= '<span class="price-value">$' . number_format((float)$price, 2) . '</span>';
+            
+            if ($pricing['discount_amount'] > 0) {
+                $product_html .= '<span class="original-price" style="text-decoration: line-through; color: #999; margin-right: 10px;">$' . number_format($pricing['original_price'], 2) . '</span>';
+                $product_html .= '<span class="discounted-price" style="color: #0073aa; font-weight: bold;">$' . number_format($pricing['final_price'], 2) . '</span>';
+                $product_html .= '<span class="discount-badge" style="background: #0073aa; color: white; padding: 3px 8px; border-radius: 3px; font-size: 12px; margin-left: 10px;">';
+                $product_html .= sprintf(__('Save $%s', 'digisales'), number_format($pricing['discount_amount'], 2));
+                $product_html .= '</span>';
+            } else {
+                $product_html .= '<span class="price-value">$' . number_format($pricing['final_price'], 2) . '</span>';
+            }
+            
             $product_html .= '</div>';
         }
+        
+        // Coupon input section
+        $product_html .= '<div class="digisales-coupon-section" style="margin: 15px 0; padding: 15px; background: #f0f0f0; border-radius: 5px;">';
+        $product_html .= '<label for="digisales-coupon-code" style="display: block; margin-bottom: 5px; font-weight: 600;">' . __('Have a coupon code?', 'digisales') . '</label>';
+        $product_html .= '<input type="text" id="digisales-coupon-code" placeholder="' . __('Enter coupon code', 'digisales') . '" style="width: 200px; padding: 8px; margin-right: 10px;" />';
+        $product_html .= '<button id="digisales-apply-coupon" class="button" style="padding: 8px 15px;">' . __('Apply Coupon', 'digisales') . '</button>';
+        $product_html .= '<div id="digisales-coupon-message" style="margin-top: 10px;"></div>';
+        $product_html .= '</div>';
         
         // Product type
         if ($product_type) {
