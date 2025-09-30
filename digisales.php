@@ -69,6 +69,10 @@ class DigiSales {
         add_action('admin_init', array($this, 'admin_init'));
         add_action('admin_enqueue_scripts', array($this, 'admin_scripts'));
         
+        // Frontend template filters
+        add_filter('template_include', array($this, 'product_template_include'));
+        add_filter('the_content', array($this, 'product_content_filter'));
+        
         // Load text domain
         add_action('plugins_loaded', array($this, 'load_textdomain'));
     }
@@ -82,6 +86,10 @@ class DigiSales {
         
         // Set default options
         $this->set_default_options();
+        
+        // Register post types and taxonomies before flushing
+        $this->register_post_types();
+        $this->register_taxonomies();
         
         // Flush rewrite rules
         flush_rewrite_rules();
@@ -1257,6 +1265,157 @@ class DigiSales {
                 ),
             );
         }
+    }
+    
+    /**
+     * Include custom template for digital product single pages
+     */
+    public function product_template_include($template) {
+        if (is_singular('digital_product')) {
+            // Check if theme has a custom template
+            $theme_template = locate_template(array('single-digital_product.php'));
+            
+            if ($theme_template) {
+                return $theme_template;
+            }
+            
+            // Use plugin's default template
+            $plugin_template = DIGISALES_PLUGIN_DIR . 'templates/single-digital_product.php';
+            if (file_exists($plugin_template)) {
+                return $plugin_template;
+            }
+        }
+        
+        return $template;
+    }
+    
+    /**
+     * Filter the content for digital product single pages
+     */
+    public function product_content_filter($content) {
+        if (!is_singular('digital_product') || !in_the_loop() || !is_main_query()) {
+            return $content;
+        }
+        
+        global $post;
+        
+        $product_types = wp_get_post_terms($post->ID, 'product_type', array('fields' => 'slugs'));
+        $product_type = !empty($product_types) ? $product_types[0] : '';
+        $price = get_post_meta($post->ID, '_digisales_price', true);
+        
+        // Build product details HTML
+        $product_html = '<div class="digisales-product-details">';
+        
+        // Price
+        if ($price) {
+            $product_html .= '<div class="digisales-product-price">';
+            $product_html .= '<span class="price-label">' . __('Price:', 'digisales') . '</span> ';
+            $product_html .= '<span class="price-value">$' . number_format((float)$price, 2) . '</span>';
+            $product_html .= '</div>';
+        }
+        
+        // Product type
+        if ($product_type) {
+            $type_obj = get_term_by('slug', $product_type, 'product_type');
+            if ($type_obj) {
+                $product_html .= '<div class="digisales-product-type">';
+                $product_html .= '<span class="type-label">' . __('Type:', 'digisales') . '</span> ';
+                $product_html .= '<span class="type-value">' . esc_html($type_obj->name) . '</span>';
+                $product_html .= '</div>';
+            }
+        }
+        
+        // Type-specific content
+        if ($product_type === 'video') {
+            $youtube_url = get_post_meta($post->ID, '_digisales_youtube_url', true);
+            if ($youtube_url) {
+                $product_html .= '<div class="digisales-video-preview">';
+                $product_html .= '<h3>' . __('Video Preview', 'digisales') . '</h3>';
+                $product_html .= '<p><em>' . __('Purchase this product to access the full video.', 'digisales') . '</em></p>';
+                $product_html .= '</div>';
+            }
+        } elseif ($product_type === 'web_series') {
+            $video_urls = get_post_meta($post->ID, '_digisales_video_urls', true);
+            if (is_array($video_urls) && !empty($video_urls)) {
+                $product_html .= '<div class="digisales-webseries-info">';
+                $product_html .= '<h3>' . __('Web Series', 'digisales') . '</h3>';
+                $product_html .= '<p>' . sprintf(__('This web series contains %d videos.', 'digisales'), count($video_urls)) . '</p>';
+                $product_html .= '<p><em>' . __('Purchase this product to access all videos.', 'digisales') . '</em></p>';
+                $product_html .= '</div>';
+            }
+        } elseif (in_array($product_type, array('ebook', 'design'))) {
+            $file_attachments = get_post_meta($post->ID, '_digisales_file_attachments', true);
+            if (is_array($file_attachments) && !empty($file_attachments)) {
+                $product_html .= '<div class="digisales-file-info">';
+                $product_html .= '<h3>' . __('Digital Files', 'digisales') . '</h3>';
+                $product_html .= '<p>' . sprintf(__('This product includes %d file(s).', 'digisales'), count($file_attachments)) . '</p>';
+                $product_html .= '<p><em>' . __('Purchase this product to download the files.', 'digisales') . '</em></p>';
+                $product_html .= '</div>';
+            }
+        }
+        
+        // Purchase button
+        $product_html .= '<div class="digisales-purchase-section">';
+        $product_html .= '<button class="digisales-purchase-button">' . __('Purchase Now', 'digisales') . '</button>';
+        $product_html .= '<p class="digisales-purchase-note"><em>' . __('Payment integration coming soon.', 'digisales') . '</em></p>';
+        $product_html .= '</div>';
+        
+        $product_html .= '</div>';
+        
+        // Add some basic styling
+        $product_html .= '<style>
+            .digisales-product-details {
+                background: #f9f9f9;
+                border: 1px solid #ddd;
+                border-radius: 5px;
+                padding: 20px;
+                margin: 20px 0;
+            }
+            .digisales-product-price {
+                font-size: 24px;
+                font-weight: bold;
+                color: #0073aa;
+                margin-bottom: 15px;
+            }
+            .digisales-product-type {
+                font-size: 14px;
+                color: #666;
+                margin-bottom: 20px;
+            }
+            .digisales-video-preview,
+            .digisales-webseries-info,
+            .digisales-file-info {
+                margin: 20px 0;
+                padding: 15px;
+                background: #fff;
+                border-left: 4px solid #0073aa;
+            }
+            .digisales-purchase-section {
+                margin-top: 30px;
+                text-align: center;
+            }
+            .digisales-purchase-button {
+                background: #0073aa;
+                color: #fff;
+                border: none;
+                padding: 15px 40px;
+                font-size: 18px;
+                font-weight: bold;
+                border-radius: 5px;
+                cursor: pointer;
+                transition: background 0.3s;
+            }
+            .digisales-purchase-button:hover {
+                background: #005a87;
+            }
+            .digisales-purchase-note {
+                margin-top: 10px;
+                font-size: 12px;
+                color: #666;
+            }
+        </style>';
+        
+        return $content . $product_html;
     }
 }
 
