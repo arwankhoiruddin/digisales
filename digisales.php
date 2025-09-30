@@ -497,6 +497,19 @@ class DigiSales {
      * Add product meta boxes
      */
     public function add_product_meta_boxes() {
+        // Remove default taxonomy metabox
+        remove_meta_box('product_typediv', 'digital_product', 'side');
+        
+        // Add custom product type selector
+        add_meta_box(
+            'digisales_product_type',
+            __('Product Type', 'digisales'),
+            array($this, 'product_type_meta_box'),
+            'digital_product',
+            'side',
+            'high'
+        );
+        
         add_meta_box(
             'digisales_product_details',
             __('Product Details', 'digisales'),
@@ -514,6 +527,45 @@ class DigiSales {
             'normal',
             'high'
         );
+    }
+    
+    /**
+     * Product type meta box
+     */
+    public function product_type_meta_box($post) {
+        wp_nonce_field('digisales_product_type_meta', 'digisales_product_type_meta_nonce');
+        
+        $product_types = get_terms(array(
+            'taxonomy' => 'product_type',
+            'hide_empty' => false,
+        ));
+        
+        $current_types = wp_get_post_terms($post->ID, 'product_type', array('fields' => 'slugs'));
+        $current_type = !empty($current_types) ? $current_types[0] : '';
+        
+        ?>
+        <div class="digisales-product-type-selector">
+            <?php foreach ($product_types as $type) : ?>
+                <label class="digisales-product-type-option">
+                    <input type="radio" 
+                           name="digisales_product_type" 
+                           value="<?php echo esc_attr($type->slug); ?>" 
+                           <?php checked($current_type, $type->slug); ?>
+                           class="digisales-product-type-radio" />
+                    <span class="digisales-product-type-label"><?php echo esc_html($type->name); ?></span>
+                </label>
+            <?php endforeach; ?>
+        </div>
+        
+        <script type="text/javascript">
+        jQuery(document).ready(function($) {
+            // Trigger field visibility on product type change
+            $('.digisales-product-type-radio').on('change', function() {
+                $(document).trigger('digisales-product-type-changed');
+            });
+        });
+        </script>
+        <?php
     }
     
     /**
@@ -600,8 +652,7 @@ class DigiSales {
         jQuery(document).ready(function($) {
             // Show/hide fields based on product type
             function toggleProductFields() {
-                var selectedType = $('#product_typechecklist input:checked').val() || 
-                                  $('.product_type-checklist input:checked').val();
+                var selectedType = $('input[name="digisales_product_type"]:checked').val();
                 
                 // Hide all product-specific fields
                 $('#youtube_url_row, #video_urls_row').hide();
@@ -615,7 +666,8 @@ class DigiSales {
             }
             
             // Monitor product type changes
-            $(document).on('change', '#product_typechecklist input, .product_type-checklist input', toggleProductFields);
+            $(document).on('change', 'input[name="digisales_product_type"]', toggleProductFields);
+            $(document).on('digisales-product-type-changed', toggleProductFields);
             
             // Initial call
             toggleProductFields();
@@ -710,7 +762,18 @@ class DigiSales {
      * Save product meta data
      */
     public function save_product_meta($post_id) {
-        // Verify nonce
+        // Verify nonce for product type
+        if (isset($_POST['digisales_product_type_meta_nonce']) && 
+            wp_verify_nonce($_POST['digisales_product_type_meta_nonce'], 'digisales_product_type_meta')) {
+            
+            // Save product type
+            if (isset($_POST['digisales_product_type'])) {
+                $product_type = sanitize_text_field($_POST['digisales_product_type']);
+                wp_set_object_terms($post_id, $product_type, 'product_type');
+            }
+        }
+        
+        // Verify nonce for product details
         if (!isset($_POST['digisales_product_meta_nonce']) || 
             !wp_verify_nonce($_POST['digisales_product_meta_nonce'], 'digisales_product_meta')) {
             return;
